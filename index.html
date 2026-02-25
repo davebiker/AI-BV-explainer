@@ -329,6 +329,12 @@ function App() {
   var splashPhase = sp[0]; var setSplashPhase = sp[1];
   var lg = useState(null);
   var lang = lg[0]; var setLang = lg[1];
+  var pw = useState("");
+  var password = pw[0]; var setPassword = pw[1];
+  var pe = useState(false);
+  var pwError = pe[0]; var setPwError = pe[1];
+  var au = useState(false);
+  var authenticated = au[0]; var setAuthenticated = au[1];
   var mb = useState(false);
   var isMobile = mb[0]; var setIsMobile = mb[1];
 
@@ -431,12 +437,12 @@ function App() {
   var hintS = {marginTop:isMobile?10:14,fontSize:isMobile?12:13,color:"#5a7a8a",lineHeight:1.5,padding:"0 4px"};
 
   // ===== SPLASH + LANG SELECT =====
-  if(!lang){
+  if(!lang || !authenticated){
     return (
       <div style={{minHeight:"100vh",background:BG,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:FONT,position:"relative",overflow:"hidden"}}>
         <div style={{position:"fixed",inset:0,backgroundImage:GRID_BG,backgroundSize:"60px 60px",pointerEvents:"none"}} />
         <div style={{textAlign:"center",position:"relative",zIndex:1}}>
-          <div style={{display:"inline-flex",alignItems:"center",gap:isMobile?12:16,marginBottom:splashPhase==="lang"?12:0,transition:"margin 0.6s ease"}}>
+          <div style={{display:"inline-flex",alignItems:"center",gap:isMobile?12:16,marginBottom:(splashPhase==="lang"||splashPhase==="password")?12:0,transition:"margin 0.6s ease"}}>
             <div style={{width:isMobile?48:64,height:isMobile?48:64,borderRadius:isMobile?12:16,background:"linear-gradient(135deg, #4ade80, #22c55e)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:isMobile?24:32,fontWeight:700,color:"#0a1520",animation:"logoAppear 0.8s ease-out, logoGlow 3s ease-in-out infinite"}}>AI</div>
             <h1 style={{fontSize:isMobile?26:40,fontWeight:700,margin:0,background:"linear-gradient(135deg, #4ade80, #a7f3d0)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",letterSpacing:"-0.5px",animation:"textSlideIn 0.8s ease-out 0.3s both"}}>Brand Visibility</h1>
           </div>
@@ -446,16 +452,54 @@ function App() {
                 {T.cs.selectLang} / {T.en.selectLang} / {T.de.selectLang}
               </p>
               <div style={{display:"flex",gap:isMobile?12:16,justifyContent:"center",flexWrap:"wrap"}}>
-                {[{code:"cs",flag:"🇨🇿",label:"Čeština"},{code:"en",flag:"🇬🇧",label:"English"},{code:"de",flag:"🇩🇪",label:"Deutsch"}].map(function(l,idx){
+                {[{code:"cs",label:"Čeština"},{code:"en",label:"English"},{code:"de",label:"Deutsch"}].map(function(l,idx){
+                  var flagW = isMobile?48:64;
+                  var flagH = isMobile?32:43;
+                  var flagSvg = null;
+                  if(l.code==="cs") flagSvg = React.createElement("svg",{width:flagW,height:flagH,viewBox:"0 0 900 600"},
+                    React.createElement("rect",{width:900,height:600,fill:"#D7141A"}),
+                    React.createElement("rect",{width:900,height:300,fill:"#FFFFFF"}),
+                    React.createElement("polygon",{points:"0,0 450,300 0,600",fill:"#11457E"})
+                  );
+                  if(l.code==="en") flagSvg = React.createElement("svg",{width:flagW,height:flagH,viewBox:"0 0 60 30"},
+                    React.createElement("rect",{width:60,height:30,fill:"#012169"}),
+                    React.createElement("path",{d:"M0,0 L60,30 M60,0 L0,30",stroke:"#fff",strokeWidth:6}),
+                    React.createElement("path",{d:"M0,0 L60,30 M60,0 L0,30",stroke:"#C8102E",strokeWidth:2}),
+                    React.createElement("path",{d:"M30,0 V30 M0,15 H60",stroke:"#fff",strokeWidth:10}),
+                    React.createElement("path",{d:"M30,0 V30 M0,15 H60",stroke:"#C8102E",strokeWidth:6})
+                  );
+                  if(l.code==="de") flagSvg = React.createElement("svg",{width:flagW,height:flagH,viewBox:"0 0 5 3"},
+                    React.createElement("rect",{width:5,height:3,fill:"#FFCC00"}),
+                    React.createElement("rect",{width:5,height:2,fill:"#DD0000"}),
+                    React.createElement("rect",{width:5,height:1,fill:"#000000"})
+                  );
                   return (
-                    <button key={l.code} onClick={function(){setSplashPhase("done");setLang(l.code);}} style={{background:CARD_BG,border:"2px solid #4ade8044",borderRadius:16,padding:isMobile?"20px 28px":"24px 36px",cursor:"pointer",fontFamily:"inherit",transition:"all 0.3s",display:"flex",flexDirection:"column",alignItems:"center",gap:10,minWidth:isMobile?100:140,animation:"langFadeUp 0.5s ease-out "+(0.1+idx*0.12)+"s both"}}
+                    <button key={l.code} onClick={function(){setSplashPhase("password");setLang(l.code);}} style={{background:CARD_BG,border:"2px solid #4ade8044",borderRadius:16,padding:isMobile?"20px 28px":"24px 36px",cursor:"pointer",fontFamily:"inherit",transition:"all 0.3s",display:"flex",flexDirection:"column",alignItems:"center",gap:10,minWidth:isMobile?100:140,animation:"langFadeUp 0.5s ease-out "+(0.1+idx*0.12)+"s both"}}
                       onMouseOver={function(e){e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.transform="scale(1.05)";e.currentTarget.style.boxShadow="0 4px 24px rgba(74,222,128,0.2)";}}
                       onMouseOut={function(e){e.currentTarget.style.borderColor="#4ade8044";e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="none";}}>
-                      <span style={{fontSize:isMobile?32:40}}>{l.flag}</span>
+                      <div style={{borderRadius:4,overflow:"hidden",lineHeight:0}}>{flagSvg}</div>
                       <span style={{fontSize:isMobile?14:16,fontWeight:600,color:"#e0e8f0"}}>{l.label}</span>
                     </button>
                   );
                 })}
+              </div>
+            </div>
+          )}
+          {splashPhase==="password" && (
+            <div style={{animation:"langFadeUp 0.7s ease-out"}}>
+              <p style={{fontSize:isMobile?14:16,color:"#7b8fa3",margin:"0 0 24px"}}>
+                {lang==="cs"?"Zadejte přístupové heslo":lang==="en"?"Enter access password":"Zugangskennwort eingeben"}
+              </p>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:12}}>
+                <input type="password" value={password} onChange={function(e){setPassword(e.target.value);setPwError(false);}}
+                  onKeyDown={function(e){if(e.key==="Enter"){if(password.toLowerCase()==="skodax"){setAuthenticated(true);setSplashPhase("done");}else{setPwError(true);setPassword("");}}}}
+                  placeholder={lang==="cs"?"Heslo...":lang==="en"?"Password...":"Passwort..."}
+                  style={{background:"#0d1520",border:pwError?"2px solid #ef4444":"2px solid #2a3a4a",borderRadius:12,padding:"14px 20px",fontSize:16,color:"#e0e8f0",fontFamily:"inherit",textAlign:"center",width:isMobile?220:280,outline:"none",transition:"border 0.3s"}} />
+                {pwError && <span style={{color:"#ef4444",fontSize:13,animation:"fadeIn 0.3s"}}>{lang==="cs"?"Nesprávné heslo":lang==="en"?"Incorrect password":"Falsches Passwort"}</span>}
+                <button onClick={function(){if(password.toLowerCase()==="skodax"){setAuthenticated(true);setSplashPhase("done");}else{setPwError(true);setPassword("");}}}
+                  style={{background:"linear-gradient(135deg, #4ade80, #22c55e)",color:"#0a1520",border:"none",borderRadius:12,padding:"12px 36px",fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"inherit",transition:"all 0.3s"}}>
+                  {lang==="cs"?"Vstoupit":lang==="en"?"Enter":"Eintreten"}
+                </button>
               </div>
             </div>
           )}
@@ -470,10 +514,10 @@ function App() {
     <div style={{minHeight:"100vh",background:BG,color:"#e0e8f0",fontFamily:FONT,padding:isMobile?"16px 12px":"24px",position:"relative",overflow:"hidden"}}>
       <div style={{position:"fixed",inset:0,backgroundImage:GRID_BG,backgroundSize:"60px 60px",pointerEvents:"none"}} />
 
-      <button onClick={function(){reset();setSplashPhase("logo");setLang(null);}} style={{position:"absolute",top:isMobile?12:20,right:isMobile?12:20,background:"#111d2e",border:"1px solid #2a3a4a",borderRadius:8,padding:"6px 12px",color:"#7b8fa3",fontSize:12,cursor:"pointer",fontFamily:"inherit",zIndex:10}}
+      <button onClick={function(){reset();setSplashPhase("logo");setLang(null);setAuthenticated(false);setPassword("");setPwError(false);}} style={{position:"absolute",top:isMobile?12:20,right:isMobile?12:20,background:"#111d2e",border:"1px solid #2a3a4a",borderRadius:8,padding:"6px 12px",color:"#7b8fa3",fontSize:12,cursor:"pointer",fontFamily:"inherit",zIndex:10}}
         onMouseOver={function(e){e.target.style.borderColor="#4ade80";e.target.style.color="#4ade80";}}
         onMouseOut={function(e){e.target.style.borderColor="#2a3a4a";e.target.style.color="#7b8fa3";}}>
-        {lang==="cs"?"🇨🇿":lang==="en"?"🇬🇧":"🇩🇪"} {lang.toUpperCase()}
+        {lang.toUpperCase()}
       </button>
 
       <div style={{textAlign:"center",marginBottom:isMobile?20:28,position:"relative",zIndex:1}}>
